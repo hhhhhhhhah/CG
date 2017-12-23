@@ -15,7 +15,6 @@ class Cylinder:
         self.userTheta = 0
         self.userHeight = 0
         self.colorMult = 0
-        #self.color = [sin(self.colorMult), sin(pi/2.0 + 2.0 * self.colorMult), sin(pi/3.0 +3.0 * self.colorMult)]
         self.color = [1.0, 1.0, 1.0]
         self.light = [1.0, 1.0, 0.0]
         b = float(input("Enter the lighting level[0-3]: "))
@@ -27,6 +26,7 @@ class Cylinder:
     def init(self):
         # Цвет бэкграунда
         glClearColor(0.0, 0.0, 0.0, 0.0)
+        glColor3f(0.5, 0.5, 0.5)
         self.compute_location()
         # Закрытие объектами друг друга
         glEnable(GL_DEPTH_TEST)
@@ -42,6 +42,10 @@ class Cylinder:
         glEnable(GL_COLOR_MATERIAL)
         # Окраска передней части
         glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        # Цвет оокрашивания
+        glColor3f(abs(sin(self.colorMult)), abs(sin(pi / 2.0 + 2.0 * self.colorMult)),
+                  abs(sin(pi / 3.0 + 3.0 * self.colorMult)))
 
     def compute_location(self):
         x = 2 * cos(self.userTheta)
@@ -92,17 +96,16 @@ class Cylinder:
 
     def display(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        glColor3f(self.color[0], self.color[1], self.color[2])
+        # Цвет оокрашивания
+        glColor3f(abs(sin(self.colorMult)), abs(sin(pi / 2.0 + 2.0 * self.colorMult)),
+                  abs(sin(pi / 3.0 + 3.0 * self.colorMult)))
         # Модель шейдеров
         glShadeModel(self.surface)
         self.drawCylinder()
         self.draw_coordinate_system()
-        if self.colorMult > 0:
-            self.draw_light()
-        self.updateColor()
+        self.draw_light()
         # Замена буфера на другое окно
         glutSwapBuffers()
-        glutPostRedisplay()
 
     def draw_coordinate_system(self):
         glBegin(GL_LINES)
@@ -162,24 +165,14 @@ class Cylinder:
             else:
                 self.intensity += [b - 0.2, b - 0.2, b - 0.2]
             glLightfv(GL_LIGHT0, GL_DIFFUSE, self.intensity)
+
+        if key == GLUT_KEY_END:
+            self.colorMult += 0.05
+            glColor3f(abs(sin(self.colorMult)), abs(sin(pi / 2.0 + 2.0 * self.colorMult)),
+                      abs(sin(pi / 3.0 + 3.0 * self.colorMult)))
         self.compute_location()
-        self.colorMult += 1.0
         glutPostRedisplay()
 
-    def updateColor(self):
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        self.colorMult += 1
-        print(self.colorMult)
-        for i in range(0, 3):
-            self.color.pop()
-
-        adj = abs(sin(self.colorMult))
-        adj2 = abs(sin(2.0 * self.colorMult))
-        adj3 = abs(sin(3.0 * self.colorMult))
-        self.color = [adj, adj2, adj3]
-
-        glutSwapBuffers()
-        glutPostRedisplay()
 
 
 def main():
